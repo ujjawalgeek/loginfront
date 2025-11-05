@@ -14,21 +14,42 @@ const Auth = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (isLogin) {
-        await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password }, { withCredentials: true });
-        alert("Login successful");
-        navigate("/");
+  e.preventDefault();
+
+  try {
+    if (isLogin) {
+      // LOGIN CALL
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+        email,
+        password,
+      }, { withCredentials: true });
+
+      if (response.data.success) {
+        alert("Login successful!");
+        navigate("/"); // redirect to homepage
       } else {
-        await axios.post(`${API_BASE_URL}/api/auth/register`, { name, email, password });
-        alert("Signup successful! Please verify your email.");
-        navigate("/verify-email");
+        alert(response.data.message);
       }
-    } catch (err) {
-      alert(err.response?.data?.message || "Error occurred");
+    } else {
+      // SIGNUP CALL
+      const response = await axios.post(`${API_BASE_URL}/api/auth/register`, {
+        name,
+        email,
+        password,
+      }, { withCredentials: true });
+
+      if (response.data.success) {
+        alert("Signup successful! Check your email for verification.");
+        navigate("/verify-email");
+      } else {
+        alert(response.data.message);
+      }
     }
-  };
+  } catch (error) {
+    console.error(error);
+    alert("Error connecting to server: " + error.message);
+  }
+};
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
